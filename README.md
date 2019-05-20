@@ -1,3 +1,12 @@
+# ICSE Tutorial on Scalable Data Science with Python and R
+
+## Setup instructions
+
+### Prerequisites
+
+### Setup steps
+ 
+## Contents
 
 # Contributing
 
