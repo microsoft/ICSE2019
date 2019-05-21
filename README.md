@@ -12,7 +12,7 @@
 
 ## Introduction to Scalable R
 
-## R on SPARK hands-on
+## R on Spark hands-on
 
 ## Reinforcement Learning Demo
 
