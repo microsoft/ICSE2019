@@ -10,8 +10,8 @@ To run these examples locally on your machine, you will need this basic software
 
 You will also need an Azure subscription. You can get a free one at https://azure.microsoft.com/en-us/free/.
 This will require a credit card, which is only required to verify your identity. The subscription comes 
-with free credit and your credit card will not be charged unless you rack up *a lot* of compute charges.
-(10 minutes active time)
+with free credit and your credit card will not be charged unless you first upgrade and rack up *a lot* of compute charges.
+(<5 minutes active time)
 
 ### Setup steps - Automated ML locally on your laptop
 * Clone the [Machine Learning Notebooks repo](https://github.com/Azure/MachineLearningNotebooks).
@@ -30,6 +30,21 @@ with free credit and your credit card will not be charged unless you rack up *a 
 ## Reinforcement Learning Demo
 
 ## Automated ML
+
+If you brought a nice, clean dataset, please feel free to try the notebooks on it if you complete
+them before the guy on the podium does!
+
+The approximate content of this demonstration will be:
+
+* Configuration (notebook)
+* AzureML basics (slides, hands-on playtime)
+* Automated ML basics (slides, hands-on playtime)
+* A simple classification problem
+* Creating and attaching scalable compute, managing it in the Portal
+* AutomatedML user interface in Portal
+* AutomatedML forecasting
+* Deploying AutomatedML models
+
 
 ### Contributing
 
