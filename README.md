@@ -10,7 +10,7 @@ To run these examples locally on your machine, you will need this basic software
 
 You will also need an Azure subscription. You can [get a free one](https://azure.microsoft.com/en-us/free/).
 It takes about 3 minutes and will require a credit card, which is only required to verify your identity.
-(No free Azure resources for spam and other darlings.) The subscription comes with free credit 
+(No easy free Azure resources for spam and other darlings!) The subscription comes with free credit 
 and your credit card will not be charged unless you initiate an upgrade and rack up *a lot* of compute charges. 
 
 ### Setup steps - Automated ML locally on your laptop
