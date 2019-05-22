@@ -4,7 +4,21 @@
 
 ### Prerequisites
 
-### Setup steps
+To run these examples locally on your machine, you will need this basic software:
+* Your favorite git client. One place to get it is https://git-scm.com/downloads
+* A distribution of Python 3: Anaconda works well. https://www.anaconda.com/distribution/
+
+You will also need an Azure subscription. You can get a free one at https://azure.microsoft.com/en-us/free/.
+This will require a credit card, which is only required to verify your identity. 
+
+The subscription comes with free credit and your credit card will not be charged unless you rack up 
+*a lot* of compute charges.
+
+### Setup steps - Automated ML locally on your laptop
+* Clone the [Machine Learning Notebooks repo](https://github.com/Azure/MachineLearningNotebooks).
+* Open a shell or command prompt window, go to `/how-to-use-azureml/automated-machine-learning` and execute the `automl_setup` script appropriate for your platform.
+* Start `jupyter notebook`
+* Execute the setup notebook [configuration.ipynb](https://github.com/Azure/MachineLearningNotebooks/blob/master/configuration.ipynb)
 
 ## Introduction to Machine Learning at Scale
 
