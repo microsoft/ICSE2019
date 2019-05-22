@@ -8,10 +8,10 @@ To run these examples locally on your machine, you will need this basic software
 * Your favorite git client. The original is [here](https://git-scm.com/downloads).
 * A distribution of Python 3: [Anaconda](https://www.anaconda.com/distribution/) works well. (10 minutes on good network)
 
-You will also need an Azure subscription. You can get a free one at https://azure.microsoft.com/en-us/free/.
-This will require a credit card, which is only required to verify your identity. The subscription comes 
-with free credit and your credit card will not be charged unless you first upgrade and rack up *a lot* of compute charges.
-(<5 minutes active time)
+You will also need an Azure subscription. You can [get a free one](https://azure.microsoft.com/en-us/free/).
+It takes about 3 minutes and will require a credit card, which is only required to verify your identity.
+(No free Azure resources for spam and other darlings.) The subscription comes with free credit 
+and your credit card will not be charged unless you initiate an upgrade and rack up *a lot* of compute charges. 
 
 ### Setup steps - Automated ML locally on your laptop
 * Clone the [Machine Learning Notebooks repo](https://github.com/Azure/MachineLearningNotebooks).
