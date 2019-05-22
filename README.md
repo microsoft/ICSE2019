@@ -32,7 +32,8 @@ with free credit and your credit card will not be charged unless you first upgra
 ## Automated ML
 
 If you brought a nice, clean dataset, please feel free to try the notebooks on it if you complete
-them before the guy on the podium does!
+them before the guy on the podium does! If you brought an big, ugly, hairy, real one, let's talk
+after the tutorial.
 
 The approximate content of this demonstration will be:
 
