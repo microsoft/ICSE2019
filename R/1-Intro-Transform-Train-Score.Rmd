@@ -1,0 +1,76 @@
+---
+title: "Simple, scalable ML workflow"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*.
+
+This cell connects R to Spark
+```{r}
+if (file.exists("/dbfs")) {
+  library(SparkR)
+  library(sparklyr)
+  sparkR.session()
+  sc <- spark_connect(method = "databricks")
+} else {
+  library(sparklyr)
+  spark_install()
+  sc <- spark_connect(master = "local")
+}
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+First, we will copy the mtcars dataset into Spark.
+```{r}
+mtcars_tbl <- copy_to(sc, mtcars, "mtcars")
+```
+
+Transform the data with Spark SQL, feature transformers, and DataFrame functions.
+
+Use Spark SQL to remove all cars with horsepower less than 100
+Use Spark feature transformers to bucket cars into two groups based on cylinders
+Use Spark DataFrame functions to partition the data into test and training
+Then fit a linear model using spark ML. Model MPG as a function of weight and cylinders.
+```{r}
+library(dplyr)
+
+# transform our data set, and then partition into 'training', 'test'
+partitions <- mtcars_tbl %>%
+  filter(hp >= 100) %>%
+  ft_bucketizer("cyl", "cyl8", splits = c(0, 8, 12)) %>%
+  sdf_random_split(training = 0.5, test = 0.5, seed = 888)
+
+# fit a linear mdoel to the training dataset
+fit <- partitions$training %>%
+  ml_linear_regression(mpg ~ wt + cyl8)
+
+summary(fit)
+```
+
+```{r}
+# Score the data
+pred <- ml_predict(fit, partitions$test) %>%
+  collect
+
+library(ggplot2)
+
+# Plot the predicted versus actual mpg
+ggplot(pred, aes(x = mpg, y = prediction)) +
+  geom_abline(lty = "dashed", col = "red") +
+  geom_point() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  coord_fixed(ratio = 1) +
+  labs(
+    x = "Actual Fuel Consumption",
+    y = "Predicted Fuel Consumption",
+    title = "Predicted vs. Actual Fuel Consumption"
+  )
+```
+

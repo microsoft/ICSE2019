@@ -1,0 +1,171 @@
+---
+title: "Manipulating Data with dplyr"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+if (file.exists("/dbfs")) {
+  library(SparkR)
+  library(sparklyr)
+  sparkR.session()
+  sc <- spark_connect(method = "databricks")
+} else {
+  library(sparklyr)
+  spark_install()
+  sc <- spark_connect(master = "local")
+}
+
+library(dplyr)
+library(nycflights13)
+library(ggplot2)
+
+flights <- copy_to(sc, flights, "flights", overwrite = TRUE)
+airlines <- copy_to(sc, airlines, "airlines", overwrite = TRUE)
+src_tbls(sc)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+```{r}
+select(flights, year:day, arr_delay, dep_delay)
+```
+```{r}
+filter(flights, dep_delay > 1000)
+```
+
+Order by dep_delay, descending
+```{r}
+arrange(flights, desc(dep_delay))
+```
+
+```{r}
+summarise(flights, mean_dep_delay = mean(dep_delay))
+```
+```{r}
+mutate(flights, speed = distance / air_time * 60)
+```
+```{r}
+c1 <- filter(flights, day == 17, month == 5, carrier %in% c('UA', 'WN', 'AA', 'DL'))
+c2 <- select(c1, year, month, day, carrier, dep_delay, air_time, distance)
+c3 <- arrange(c2, year, month, day, carrier)
+c4 <- mutate(c3, air_time_hours = air_time / 60)
+```
+
+```{r}
+c4
+```
+
+```{r}
+c4 <- flights %>%
+  filter(month == 5, day == 17, carrier %in% c('UA', 'WN', 'AA', 'DL')) %>%
+  select(carrier, dep_delay, air_time, distance) %>%
+  arrange(carrier) %>%
+  mutate(air_time_hours = air_time / 60)
+
+c4
+```
+
+```{r}
+c4 %>%
+  group_by(carrier) %>%
+  summarize(count = n(), mean_dep_delay = mean(dep_delay)) %>%
+  arrange(mean_dep_delay)
+```
+
+```{r}
+
+class(c4)
+
+carrierhours <- collect(c4)
+
+class(carrierhours)
+```
+
+```{r}
+# Test the significance of pairwise differences and plot the results
+with(carrierhours, pairwise.t.test(air_time, carrier))
+```
+
+```{r}
+# Test the significance of pairwise differences and plot the results
+with(carrierhours, pairwise.t.test(air_time_hours, carrier))
+```
+```{r}
+ggplot(carrierhours, aes(carrier, air_time_hours)) + geom_boxplot()
+```
+
+```{r}
+ggplot(carrierhours, aes(carrier, air_time_hours)) + geom_boxplot(notch = TRUE)
+```
+
+SQL Translation
+It’s relatively straightforward to translate R code to SQL (or indeed to any programming language) when doing simple mathematical operations of the form you normally use when filtering, mutating and summarizing. dplyr knows how to convert the following R functions to Spark SQL:
+
+# Basic math operators
++, -, *, /, %%, ^
+  
+# Math functions
+abs, acos, asin, asinh, atan, atan2, ceiling, cos, cosh, exp, floor, log, log10, round, sign, sin, sinh, sqrt, tan, tanh
+
+# Logical comparisons
+<, <=, !=, >=, >, ==, %in%
+
+# Boolean operations
+&, &&, |, ||, !
+
+# Character functions
+paste, tolower, toupper, nchar
+
+# Casting
+as.double, as.integer, as.logical, as.character, as.date
+
+# Basic aggregations
+mean, sum, min, max, sd, var, cor, cov, n
+
+```{r}
+# Find the most and least delayed flight each day
+bestworst <- flights %>%
+  group_by(year, month, day) %>%
+  select(dep_delay) %>% 
+  filter(dep_delay == min(dep_delay) || dep_delay == max(dep_delay))
+dbplyr::sql_render(bestworst)
+
+bestworst
+```
+```{r}
+# Rank each flight within a daily
+ranked <- flights %>%
+  group_by(year, month, day) %>%
+  select(carrier, dep_delay) %>% 
+  mutate(rank = rank(desc(dep_delay)))
+
+dbplyr::sql_render(ranked)
+
+ranked
+```
+```{r}
+flights %>% left_join(airlines)
+# flights %>% left_join(airlines, by = "carrier")
+# flights %>% left_join(airlines, by = c("carrier", "carrier"))
+```
+# Sampling
+```{r}
+sample_n(flights, 10)
+
+sample_frac(flights, 0.01)
+```
+
+# Writing Data
+
+saves to /dbfs in Databricks
+```{r}
+spark_write_parquet(airlines, "airlines.parquet")
+```
+
