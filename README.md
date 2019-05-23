@@ -1,7 +1,61 @@
+# ICSE Tutorial on Scalable Data Science with Python and R
 
-# Contributing
+## Setup instructions
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
+### Prerequisites
+
+To run these examples locally on your machine, you will need this basic software:
+* Your favorite git client. The original is [here](https://git-scm.com/downloads).
+* A distribution of Python 3: [Anaconda](https://www.anaconda.com/distribution/) works well. (5 minutes on good network)
+* A distribution of R: How about [Microsoft R Open](https://mran.microsoft.com/open)? (2 minutes on good network)
+* You will also need an Azure subscription. You can [get a free one](https://azure.microsoft.com/en-us/free/).
+It takes about 3 minutes and will require a credit card, which is only required to verify your identity.
+(No easy free Azure resources for spam bots and other vermin!) The subscription comes with $200 credit 
+and your credit card will not be charged unless you actively initiate an upgrade and rack up *a lot* of compute charges. 
+
+### Setup steps - Automated ML locally on your laptop
+* Clone the [Machine Learning Notebooks repo](https://github.com/Azure/MachineLearningNotebooks).
+* Open a shell or command prompt window, go to `/how-to-use-azureml/automated-machine-learning` and execute the `automl_setup` script appropriate for your platform (Win, Linux, Mac). Many packages will be installed (10 minutes on good network).
+* A browser window with Jupyter will open. You might need to re-start jupyter in the root directory of the repo.
+* Execute the setup notebook [configuration.ipynb](https://github.com/Azure/MachineLearningNotebooks/blob/master/configuration.ipynb).  
+
+## Introduction to Machine Learning at Scale
+
+## AutoML on Azure ML Services
+
+## Introduction to Scalable R
+
+## R on Spark hands-on
+
+## Reinforcement Learning Demo
+
+## Automated ML
+
+AutomatedML takes care of the repetitive process of hypothesizing a model, fitting it to the data,
+evaluating, and repeating until alternatives or the data scientist have been exhausted. It can
+run locally or use the power of the cloud to try many models in parallel.
+
+If you brought a nice, clean dataset, please feel free to try the notebooks on it if you complete
+them before the guy on the podium does! If you brought an big, ugly, hairy, real one, let's talk
+after the tutorial.
+
+The approximate content of this demonstration will be:
+
+* Configuration (notebook)
+* AzureML basics (slides, hands-on playtime)
+* Automated ML basics (slides, hands-on playtime)
+* A simple classification problem
+* Creating and attaching scalable compute, managing it in the Portal
+* AutomatedML user interface in Portal
+* AutomatedML forecasting
+* Deploying AutomatedML models
+
+
+### Contributing
+
+Contact us if you'd like to contribute to this repository.
+
+Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.microsoft.com.
 
