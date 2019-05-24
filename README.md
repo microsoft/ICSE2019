@@ -4,16 +4,17 @@
 
 ### Prerequisites
 
-To run these examples locally on your machine, you will need this basic software:
-* Your favorite git client. The original is [here](https://git-scm.com/downloads).
-* A distribution of Python 3: [Anaconda](https://www.anaconda.com/distribution/) works well. (5 minutes on good network)
-* A distribution of R: How about [Microsoft R Open](https://mran.microsoft.com/open)? (2 minutes on good network)
-* You will also need an Azure subscription. You can [get a free one](https://azure.microsoft.com/en-us/free/).
+You will need an Azure subscription. You can [get a free one](https://azure.microsoft.com/en-us/free/).
 It takes about 3 minutes and will require a credit card, which is only required to verify your identity.
 (No easy free Azure resources for spam bots and other vermin!) The subscription comes with $200 credit 
 and your credit card will not be charged unless you actively initiate an upgrade and rack up *a lot* of compute charges. 
 
-### Setup steps - Automated ML locally on your laptop
+To run these examples locally on your machine, you will need this basic software:
+* Your favorite git client. The original is [here](https://git-scm.com/downloads).
+* A distribution of Python 3: [Anaconda](https://www.anaconda.com/distribution/) works well. (5 minutes on good network)
+* A distribution of R: How about [Microsoft R Open](https://mran.microsoft.com/open)? (2 minutes on good network)
+
+### Setup steps - Automated ML locally on a laptop or VM
 * Clone the [Machine Learning Notebooks repo](https://github.com/Azure/MachineLearningNotebooks).
 * Open a shell or command prompt window, go to `/how-to-use-azureml/automated-machine-learning` and execute the `automl_setup` script appropriate for your platform (Win, Linux, Mac). Many packages will be installed (10 minutes on good network).
 * A browser window with Jupyter will open. You might need to re-start jupyter in the root directory of the repo.
