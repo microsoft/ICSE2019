@@ -2,63 +2,106 @@
 title: "Simple, scalable ML workflow"
 output: html_notebook
 ---
+# Introduction
+This notebook is a simple example of training and scoring a machine learning model in Spark. It is based on the [Sparklyr MLlib documentation](https://spark.rstudio.com/mlib/).
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+## Outline
+1. Connect to Spark
+2. Load data into Spark's in-memory storage
+3. Transform the data
+4. Split the data into training and test sets
+4. Fit an ML model on the training set
+5. Use the fitted model to Score the test set
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*.
+## A note on R Notebooks
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook in RStudio, the results appear beneath the code. 
 
-This cell connects R to Spark
+Try executing the following chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*.
+
+# Connect to Spark
 ```{r}
 if (file.exists("/dbfs")) {
+  # Connecting on a Databricks cluster
   library(SparkR)
   library(sparklyr)
   sparkR.session()
   sc <- spark_connect(method = "databricks")
 } else {
+  # Connecting on a local machine
   library(sparklyr)
   spark_install()
   sc <- spark_connect(master = "local")
 }
 ```
-
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
-
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
-
-First, we will copy the mtcars dataset into Spark.
+# Copy the mtcars dataset into Spark's distributed in-memory storage
 ```{r}
-mtcars_tbl <- copy_to(sc, mtcars, "mtcars")
+mtcars_tbl <- copy_to(sc, mtcars, "mtcars", overwrite = TRUE)
+
+# Print the class attribute of "mtcars", an R data.frame
+class(mtcars)
+
+# Print the class attribute of "mtcars_tbl", a handle to a Spark dataframe
+class(mtcars_tbl)
 ```
+# Transform the data with Spark SQL, feature transformers, and DataFrame functions.
 
-Transform the data with Spark SQL, feature transformers, and DataFrame functions.
-
-Use Spark SQL to remove all cars with horsepower less than 100
-Use Spark feature transformers to bucket cars into two groups based on cylinders
-Use Spark DataFrame functions to partition the data into test and training
-Then fit a linear model using spark ML. Model MPG as a function of weight and cylinders.
+- Use Spark SQL to remove all cars with horsepower less than 100
+- Use Spark feature transformers to bucket cars into two groups based on cylinders
+- Use Spark DataFrame functions to partition the data into test and training
 ```{r}
 library(dplyr)
 
 # transform our data set, and then partition into 'training', 'test'
 partitions <- mtcars_tbl %>%
   filter(hp >= 100) %>%
-  ft_bucketizer("cyl", "cyl8", splits = c(0, 8, 12)) %>%
+  ft_bucketizer("cyl", "cyl8", splits = c(4, 8, 8.01)) %>%
   sdf_random_split(training = 0.5, test = 0.5, seed = 888)
 
-# fit a linear mdoel to the training dataset
-fit <- partitions$training %>%
-  ml_linear_regression(mpg ~ wt + cyl8)
+# Print the class attribute of "partitions$training", a handle to a Spark dataframe
+class(partitions$training)
 
+# Count rows
+count(partitions$training)
+count(partitions$test)
+```
+# Spark SQL
+```{r}
+library(DBI)
+
+# Register partitions$training as a Spark SQL table named "training_set"
+partitions_training <- sdf_register(partitions$training, "training_set")
+
+class(partitions_training)
+
+dbGetQuery(sc, "SELECT COUNT(*) FROM training_set")
+```
+# Fit a linear model using spark ML
+- Model MPG as a function of weight and cylinders
+- What happens if we replace "cyl" with "cyl8"?
+```{r}
+# fit the model using Spark MLlib's linear regression function
+fit <- partitions$training %>%
+  ml_linear_regression(mpg ~ wt + cyl)
+
+# print a summary of the fitted model
 summary(fit)
 ```
-
-```{r}
 # Score the data
+- Use our fitted model to predict the label column (mpg) in the test set
+- Collect the results from Spark into an R data.frame
+```{r}
+# Perform scoring and bring the results back to R
 pred <- ml_predict(fit, partitions$test) %>%
   collect
 
+# Print the class attribute of "pred"
+class(pred)
+
+# Print the actual and predicted mpg
+pred[, c("mpg", "prediction")]
+```
+# Plot the predictions
+```{r}
 library(ggplot2)
 
 # Plot the predicted versus actual mpg

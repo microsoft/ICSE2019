@@ -1,12 +1,23 @@
 ---
-title: "Operationalizing scoring and re-training with ML pipelines"
+title: "Productionalizing scoring and re-fitting with ML pipelines"
 output: html_notebook
 ---
+# Introduction
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+This notebook illustrates organizing a ML workflow of transformations and model fitting into a Pipeline that can be handed off from  Data Scientist to  Data Engineer. It is based on the [Sparklyr ML Pipelines documentation](https://spark.apache.org/docs/latest/ml-pipeline.html).
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+## Outline
+1. Connect to Spark
+2. Load data into Spark's in-memory storage
+3. Specify the pipeline
+4. Split the data into training and test sets
+4. Fit the pipeline on the training set
+5. Save the fitted pipeline to disk
+6. Re-load the fitted pipeline from disk
+7. Use the fitted pipeline to score new data
+8. Re-fit the pipeline on new training data
 
+# Connect to Spark
 ```{r}
 if (file.exists("/dbfs")) {
   library(SparkR)
@@ -19,13 +30,16 @@ if (file.exists("/dbfs")) {
   sc <- spark_connect(master = "local")
 }
 ```
-
+# Load data into Spark's in-memory storage
 ```{r}
 library(nycflights13)
 library(dplyr)
 
 spark_flights <- sdf_copy_to(sc, flights, overwrite = TRUE)
-
+```
+# Specify the dplyr (SQL) operations
+```{r}
+# Filter, transform, and select
 df <- spark_flights %>%
   filter(!is.na(dep_delay)) %>%
   mutate(
@@ -34,17 +48,16 @@ df <- spark_flights %>%
   ) %>%
   select(dep_delay, sched_dep_time, month, day, distance) 
 
+# Preview the transformed data
 df
-```
 
-```{r}
+# View the generated SQL 
 ft_dplyr_transformer(sc, df) %>%
   ml_param("statement")
 
 ```
-
+# Compose the full pipeline
 ```{r}
-
 flights_pipeline <- ml_pipeline(sc) %>%
   ft_dplyr_transformer(
     tbl = df
@@ -64,9 +77,8 @@ flights_pipeline <- ml_pipeline(sc) %>%
 
 flights_pipeline
 ```
-
+# Split the data into training and test sets
 ```{r}
-
 partitioned_flights <- sdf_random_split(
   spark_flights,
   training = 0.01,
@@ -74,7 +86,9 @@ partitioned_flights <- sdf_random_split(
   rest = 0.98,
   seed = 123
 )
-
+```
+# Fit the pipeline on the training set
+```{r}
 fitted_pipeline <- ml_fit(
   flights_pipeline,
   partitioned_flights$training
@@ -82,9 +96,7 @@ fitted_pipeline <- ml_fit(
 
 fitted_pipeline
 ```
-
-# Save the pipelines to disk
-The ml_save() command can be used to save the Pipeline and PipelineModel to disk. The resulting output is a folder with the selected name, which contains all of the necessary Scala scripts:
+# Save the unfitted and fitted pipelines to disk
 ```{r}
 ml_save(
   flights_pipeline,
@@ -98,15 +110,11 @@ ml_save(
   overwrite = TRUE
 )
 ```
-
-# Use an existing PipelineModel
-The ml_load() command can be used to re-load Pipelines and PipelineModels. The saved ML Pipeline files can only be loaded into an open Spark session.
-
+# Re-load the fitted pipeline from disk
 ```{r}
 reloaded_model <- ml_load(sc, "flights_model")
-
 ```
-A simple query can be used as the table that will be used to make the new predictions. This of course, does not have to done in R, at this time the “flights_model” can be loaded into an independent Spark session outside of R.
+# Use the re-loaded fitted pipeline for scoring
 ```{r}
 new_df <- spark_flights %>%
   filter(
@@ -116,9 +124,7 @@ new_df <- spark_flights %>%
 
 ml_transform(reloaded_model, new_df) 
 ```
-# Re-fit an existing Pipeline
-First, reload the pipeline into an open Spark session.
-Use ml_fit() again to pass new data, in this case, sample_frac() is used instead of sdf_partition() to provide the new data. The idea being that the re-fitting would happen at a later date than when the model was initially fitted.
+# Re-fit the pipeline on new training data
 ```{r}
 reloaded_pipeline <- ml_load(sc, "flights_pipeline")
 
