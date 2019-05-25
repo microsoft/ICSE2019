@@ -97,6 +97,10 @@ pred <- ml_predict(fit, partitions$test) %>%
 # Print the class attribute of "pred"
 class(pred)
 
+# Calculate the Root Mean Squared Prediction Error
+rmse_test <- sqrt(mean((pred$mpg - pred$prediction) ^ 2))
+rmse_test
+
 # Print the actual and predicted mpg
 pred[, c("mpg", "prediction")]
 ```
