@@ -1,0 +1,15 @@
+Tomas Singliar is Principal Data Scientist in the Azure ML group in
+Microsoft AI Platform's AutoML team. He works on automated search for 
+the best forecasting models. In this, his experience from architecting 
+the Azure ML Python Package for Forecasting comes handy.
+
+Tomas's favorite hammer is probabilistic and Bayesian modeling, 
+which he applies analytically and predictively to business data.
+His favorite anvil is cloud data stores, especially MPP SQL databases
+and data lakes.
+
+He studied machine learning at University of Pittsburgh. 
+Tomas published a dozen papers in and serves as reviewer for several top
+tier AI conferences (AAAI, UAI, etc). He holds four patents in intent
+recognition through inverse reinforcement learning. 
+
