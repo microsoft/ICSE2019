@@ -71,7 +71,7 @@ The approximate content of this demonstration will be:
 * AutomatedML forecasting
 * Deploying AutomatedML models
 
-### Setup steps - Automated ML locally on a laptop or VM
+### Setup steps - Automated ML
 * Clone the [Machine Learning Notebooks repo](https://github.com/Azure/MachineLearningNotebooks).
 * Open a shell or command prompt window, go to `/how-to-use-azureml/automated-machine-learning` and execute the `automl_setup` script appropriate for your platform (Win, Linux, Mac). Many packages will be installed (10 minutes on good network).
 * A browser window with Jupyter will open. You might need to re-start jupyter in the root directory of the repo.
