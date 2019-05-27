@@ -25,6 +25,24 @@ To run these examples locally on your machine, you will need this basic software
 ## AutoML on Azure ML Services
 
 ## Introduction to Scalable R
+1. Launch X2go Client and click Session | New Session
+  * Host: enter host IP address
+  * Login: enter username
+  * Session type: choose XFCE
+  * Click OK
+  * Click the icon or the session name, e.g. “New session”
+  * Enter password
+  * Click OK
+2. Open command window on DSVM and execute “docker run” command:
+  * sudo docker run -e PASSWORD=mypassword1 -p 8787:8787 rocker/verse
+3. Open web browser on DSVM and connect to RStudio Server on port 8787:
+  * http://localhost:8787
+4. Open terminal window in RStudio and clone git repo
+  * git clone https://github.com/microsoft/ICSE2019
+5. In the Files pane in RStudio,
+  * Open the ICSE2019 folder
+  * Open the R folder
+  * Click 1-Intro-Transform-Train-Score.Rmd (not the .nb.html file)
 
 ## R on Spark hands-on
 
