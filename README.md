@@ -43,6 +43,8 @@ Alternate prerequisites to run these examples locally on your machine:
   * sudo docker run -e PASSWORD=mypassword1 -p 8787:8787 rocker/verse
 3. Open web browser on DSVM and connect to RStudio Server on port 8787:
   * http://localhost:8787
+  * username: rstudio
+  * password: mypassword1
 4. Open terminal window in RStudio and clone git repo
   * git clone https://github.com/microsoft/ICSE2019
 5. In the Files pane in RStudio,
