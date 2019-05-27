@@ -35,5 +35,8 @@ vignettes/*.pdf
 # Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
 rsconnect/
 
+# secrets shouldn't be checked in
+*.keys
+
 # Local IDE files, user dependent
 /.vs
