@@ -11,11 +11,13 @@ This notebook illustrates organizing a ML workflow of transformations and model 
 2. Load data into Spark's in-memory storage
 3. Specify the pipeline
 4. Split the data into training and test sets
-4. Fit the pipeline on the training set
-5. Save the fitted pipeline to disk
-6. Re-load the fitted pipeline from disk
-7. Use the fitted pipeline to score new data
-8. Re-fit the pipeline on new training data
+5. Fit the pipeline on the training set
+6. Score the test set
+7. Check prediction metrics
+8. Save the pipelines to disk - Hand-off from Data Scientist to Data Engineer
+9. Re-load the fitted pipeline from disk
+10. Use the fitted pipeline to score new data
+11. Load the unfitted pipeline and fit on new training data
 
 # Connect to Spark
 ```{r}
@@ -87,6 +89,7 @@ flights_pipeline <- ml_pipeline(sc) %>%
 flights_pipeline
 ```
 # Split the data into training and test sets
+- Note: splitting randomly - do not use for forecasting
 ```{r}
 partitioned_flights <- sdf_random_split(
   spark_flights,
@@ -104,6 +107,34 @@ fitted_pipeline <- ml_fit(
 )
 
 fitted_pipeline
+```
+# Score the pipeline on the test set
+```{r}
+pred_testing <- ml_transform(fitted_pipeline, partitioned_flights$testing)
+pred_testing
+```
+# Check prediction metrics
+```{r}
+library(pROC)
+
+# Collect predictions into R
+pred_testing_df <- collect(pred_testing)
+
+# Extract the known labels and probability predictions
+labels <- pred_testing_df$delayed
+probabilities <- sapply(pred_testing_df$probability, last)
+
+# Compute metrics
+rocobj_prob <- roc(labels, probabilities)
+
+# Print summary and AUC
+rocobj_prob
+
+# Request full set of metrics
+rocobj_prob_metrics <- coords(rocobj_prob, "best", ret=c("threshold", "specificity", "sensitivity", "accuracy", "tn", "tp", "fn", "fp", "npv", "ppv", "1-specificity", "1-sensitivity", "1-accuracy", "1-npv", "1-ppv", "precision", "recall"))
+
+# Print full metrics
+as.data.frame(rocobj_prob_metrics)
 ```
 # Save the unfitted and fitted pipelines to disk
 ```{r}
@@ -134,7 +165,7 @@ new_df <- spark_flights %>%
 pred <- ml_transform(reloaded_model, new_df)
 pred
 ```
-# Re-fit the pipeline on new training data
+# Fit on new training data
 ```{r}
 reloaded_pipeline <- ml_load(sc, "flights_pipeline")
 
