@@ -74,10 +74,16 @@ The approximate content of this demonstration will be:
 ### Setup steps - Automated ML
 * Clone the [Machine Learning Notebooks repo](https://github.com/Azure/MachineLearningNotebooks).
 * Open a shell or command prompt window, go to `/how-to-use-azureml/automated-machine-learning` and execute the `automl_setup` script appropriate for your platform (Win, Linux, Mac). Many packages will be installed (10 minutes on good network).
-* A browser window with Jupyter will open. You might need to re-start jupyter in the root directory of the repo.
-* Execute the setup notebook [configuration.ipynb](https://github.com/Azure/MachineLearningNotebooks/blob/master/configuration.ipynb).  
+* A browser window with Jupyter will open. Ctrl+C the ipykernel in the terminal.
+* Re-start jupyter in the root directory of the repo (two folders up) with `jupyter notebook`
+* Open the setup notebook [configuration.ipynb](https://github.com/Azure/MachineLearningNotebooks/blob/master/configuration.ipynb).
+* Make sure to use the `azure_automl` kernel.
+* Transfer your subscription information and resource group name into the second code cell of the notebook.
+* Run cells according to instructions. 
 
 ## Reinforcement Learning
+
+This will be a slide presentation.
 
 ### Contributing
 
