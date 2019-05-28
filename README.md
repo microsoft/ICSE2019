@@ -86,7 +86,21 @@ The approximate content of this demonstration will be:
 
 ## Reinforcement Learning
 
-This will be a slide presentation.
+This will be a presentation interspersed with 3 notebook demos.  The notebooks are available in the Rlearn subdirectory of this repository. Note that all demos were developed using python version 3.6  - available on the DSVM as `source activate py36`.
+
+* To run the two "Maze" demos you will need to install the current `pybrain` from github, by running:
+
+```
+    git clone https://github.com/pybrain/pybrain.git
+    cd pybrain
+    python3 setup.py install
+```
+
+You may need to `conda install setuptools` for this to work.  
+ 
+Other dependencies on numpy, scipy and matplot lib should already by installed on the Data Science VM.
+
+* To run the Azure Personalizer you need to creae a Personalizer(preview) resource in Azure, from which you can find the resource key and URL endpoints to be incorporated in your script for running the resource.
 
 ### Contributing
 
