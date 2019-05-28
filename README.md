@@ -86,7 +86,7 @@ The approximate content of this demonstration will be:
 
 ## Reinforcement Learning
 
-This will be a presentation interspersed with 3 notebook demos.  The notebooks are available in the Rlearn subdirectory of this repository.
+This will be a presentation interspersed with 3 notebook demos.  The notebooks are available in the Rlearn subdirectory of this repository. Note that all demos were developed using python version 3.6  - available on the DSVM as `source activate py36`.
 
 * To run the two "Maze" demos you will need to install the current `pybrain` from github, by running:
 
