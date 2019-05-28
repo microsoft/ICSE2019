@@ -93,8 +93,10 @@ This will be a presentation interspersed with 3 notebook demos.  The notebooks a
 ```
     git clone https://github.com/pybrain/pybrain.git
     cd pybrain
-    sudo python3 setup.py install
+    python3 setup.py install
 ```
+
+You may need to `conda install setuptools` for this to work.  
  
 Other dependencies on numpy, scipy and matplot lib should already by installed on the Data Science VM.
 
