@@ -30,6 +30,7 @@ This environment needs to be setup to run jupyter notebooks by these installs:
 ```
     conda install jupyter
     conda install nb_conda
+    conda install matplotlib
 ```
 
 The following is not covered in the tutorial notebooks, but its here for reference:
