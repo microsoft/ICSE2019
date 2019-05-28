@@ -4,31 +4,54 @@
 
 ### Prerequisites
 
-You will need an Azure subscription. You can [get a free one](https://azure.microsoft.com/en-us/free/).
-It takes about 3 minutes and will require a credit card, which is only required to verify your identity.
-(No easy free Azure resources for spam bots and other vermin!) The subscription comes with $200 credit 
-and your credit card will not be charged unless you actively initiate an upgrade and rack up *a lot* of compute charges. 
+You will need an Azure subscription. You can get a free trial subscription, as described below. 
+It takes about 3 minutes and will require a credit card, which is only required to verify your identity. The subscription comes with $200 credit 
+and your credit card will not be charged unless you actively initiate an upgrade. 
 
-To run these examples locally on your machine, you will need this basic software:
+1. Create a Microsoft account at https://outlook.com (skip if you already have an account @outlook.com, @Hotmail.com, or @live.com)
+2. Use your Microsoft account to get the free Azure subscription https://azure.microsoft.com/en-us/free/
+  * You get 200$ Azure credits expiring in 30 days
+  * Credit card needed for identification purpose. You will not be charged even after  30 days or the 200$ credits are used
+3. Create an Ubuntu Linux DSVM https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/dsvm-ubuntu-intro
+4. Create an AzureML workspace https://docs.microsoft.com/en-us/azure/machine-learning/service/setup-create-workspace#portal
+5. Install x2go client on your local machine https://wiki.x2go.org/doku.php/doc:installation:x2goclient
+6. Test connecting to your DSVM
+  * Go to Azure portal to get the public IP of your DSVM
+  * Connect to it from x2go client by choosing XFCE
+  * After connecting, open a command window and clone the github repository to get the tutorial content to your DSVM: git clone https://github.com/microsoft/ICSE2019
+
+Alternate prerequisites to run these examples locally on your machine:
 * Your favorite git client. The original is [here](https://git-scm.com/downloads).
 * A distribution of Python 3: [Anaconda](https://www.anaconda.com/distribution/) works well. (5 minutes on good network)
 * A distribution of R: How about [Microsoft R Open](https://mran.microsoft.com/open)? (2 minutes on good network)
 
-### Setup steps - Automated ML locally on a laptop or VM
-* Clone the [Machine Learning Notebooks repo](https://github.com/Azure/MachineLearningNotebooks).
-* Open a shell or command prompt window, go to `/how-to-use-azureml/automated-machine-learning` and execute the `automl_setup` script appropriate for your platform (Win, Linux, Mac). Many packages will be installed (10 minutes on good network).
-* A browser window with Jupyter will open. You might need to re-start jupyter in the root directory of the repo.
-* Execute the setup notebook [configuration.ipynb](https://github.com/Azure/MachineLearningNotebooks/blob/master/configuration.ipynb).  
-
 ## Introduction to Machine Learning at Scale
-
-## AutoML on Azure ML Services
 
 ## Introduction to Scalable R
 
 ## R on Spark hands-on
 
-## Reinforcement Learning Demo
+1. Launch X2go Client and click Session | New Session
+  * Host: enter host IP address
+  * Login: enter username
+  * Session type: choose XFCE
+  * Click OK
+  * Click the icon or the session name, e.g. “New session”
+  * Enter password
+  * Click OK
+2. Open command window on DSVM and execute “docker run” command:
+  * sudo docker run -e PASSWORD=mypassword1 -p 8787:8787 rocker/verse
+3. Open web browser on DSVM and connect to RStudio Server on port 8787:
+  * http://localhost:8787
+  * username: rstudio
+  * password: mypassword1
+  * When it says “Packages sparklyr and SparkR required but are not installed”, click “Install”
+4. Open terminal window in RStudio and clone git repo
+  * git clone https://github.com/microsoft/ICSE2019
+5. In the Files pane in RStudio,
+  * Open the ICSE2019 folder
+  * Open the R folder
+  * Click 1-Intro-Transform-Train-Score.Rmd (not the .nb.html file)
 
 ## Automated ML
 
@@ -51,6 +74,19 @@ The approximate content of this demonstration will be:
 * AutomatedML forecasting
 * Deploying AutomatedML models
 
+### Setup steps - Automated ML
+* Clone the [Machine Learning Notebooks repo](https://github.com/Azure/MachineLearningNotebooks).
+* Open a shell or command prompt window, go to `/how-to-use-azureml/automated-machine-learning` and execute the `automl_setup` script appropriate for your platform (Win, Linux, Mac). Many packages will be installed (10 minutes on good network).
+* A browser window with Jupyter will open. Ctrl+C the ipykernel in the terminal.
+* Re-start jupyter in the root directory of the repo (two folders up) with `jupyter notebook`
+* Open the setup notebook [configuration.ipynb](https://github.com/Azure/MachineLearningNotebooks/blob/master/configuration.ipynb).
+* Make sure to use the `azure_automl` kernel.
+* Transfer your subscription information and resource group name into the second code cell of the notebook.
+* Run cells according to instructions. 
+
+## Reinforcement Learning
+
+This will be a slide presentation.
 
 ### Contributing
 
