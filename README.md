@@ -40,7 +40,7 @@ Alternate prerequisites to run these examples locally on your machine:
   * Enter password
   * Click OK
 2. Open command window on DSVM and execute “docker run” command:
-  * sudo docker run -e PASSWORD=mypassword1 -p 8787:8787 rocker/verse
+  * sudo docker run -e PASSWORD=mypassword1 -p 8787:8787 rocker/verse:3.6.0
 3. Open web browser on DSVM and connect to RStudio Server on port 8787:
   * http://localhost:8787
   * username: rstudio
