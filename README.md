@@ -45,13 +45,13 @@ Alternate prerequisites to run these examples locally on your machine:
   * http://localhost:8787
   * username: rstudio
   * password: mypassword1
-  * When it says “Packages sparklyr and SparkR required but are not installed”, click “Install”
 4. Open terminal window in RStudio and clone git repo
   * git clone https://github.com/microsoft/ICSE2019
 5. In the Files pane in RStudio,
   * Open the ICSE2019 folder
   * Open the R folder
   * Click 1-Intro-Transform-Train-Score.Rmd (not the .nb.html file)
+  * When it says “Packages sparklyr and SparkR required but are not installed”, click “Install”
 
 ## Automated ML
 
