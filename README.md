@@ -40,18 +40,20 @@ Alternate prerequisites to run these examples locally on your machine:
   * Enter password
   * Click OK
 2. Open command window on DSVM and execute “docker run” command:
-  * sudo docker run -e PASSWORD=mypassword1 -p 8787:8787 rocker/verse
+  * sudo docker run -e PASSWORD=mypassword1 -p 8787:8787 rocker/verse:3.6.0
 3. Open web browser on DSVM and connect to RStudio Server on port 8787:
   * http://localhost:8787
   * username: rstudio
   * password: mypassword1
-  * When it says “Packages sparklyr and SparkR required but are not installed”, click “Install”
 4. Open terminal window in RStudio and clone git repo
   * git clone https://github.com/microsoft/ICSE2019
 5. In the Files pane in RStudio,
   * Open the ICSE2019 folder
   * Open the R folder
-  * Click 1-Intro-Transform-Train-Score.Rmd (not the .nb.html file)
+  * Click 1-Intro-Transform-Train-Score.Rmd (not the .nb.html file) to open the first hands-on script
+  * When it says that certain packages are required but are not installed, click “Install”
+  * Click 2-ML-Pipelines.Rmd (not the .nb.html file) to open the second hands-on script
+  * When it says that certain packages are required but are not installed, click “Install”
 
 ## Automated ML
 

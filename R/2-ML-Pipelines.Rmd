@@ -4,7 +4,7 @@ output: html_notebook
 ---
 # Introduction
 
-This notebook illustrates organizing a ML workflow of transformations and model fitting into a Pipeline that can be handed off from  Data Scientist to  Data Engineer. It is based on the [Sparklyr ML Pipelines documentation](https://spark.apache.org/docs/latest/ml-pipeline.html).
+This notebook illustrates organizing a ML workflow of transformations and model fitting into a Pipeline that can be handed off from  Data Scientist to  Data Engineer. It is based on the [Sparklyr ML Pipelines documentation](https://spark.rstudio.com/guides/pipelines/).
 
 ## Outline
 1. Connect to Spark
