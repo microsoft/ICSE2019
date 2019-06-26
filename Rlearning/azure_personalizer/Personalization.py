@@ -197,9 +197,13 @@ lm = stats.linregress(count, rewards)
 y = [lm.slope * c + lm.intercept for c in count]
 print("Percent change per event:{: .4f}%".format(100 * lm.slope))
 
+
+csv_fn = assemble_output_file_name(out_dir, 'pers_data', suffix='.csv')
+DataFrame(index=count, data=rewards, columns = ["rewards"]).to_csv(csv_fn)
 # #### The learning rate
 # 
 # A postive rate of change implies learning improves recommendations over time. We see this by plotting the total number of correct recommendations for every batch of 10 events.
+
 
 plt_fn = assemble_output_file_name(out_dir, 'pers_plot', suffix='.png')
 plt.plot(count, rewards)
