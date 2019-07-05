@@ -4,22 +4,46 @@
 # # Cognitive Services "coffee choice" Personalizer demo 
 # https://github.com/Azure-Samples/cognitive-services-personalizer-samples
 
-# In this example, we will use Azure Personalizer Service to predict what Coffee a person (Alice, Bob, Cathy and Dave) prefers using the weather condition and time of day. File "example.json" contains their preferred choices of coffee (set deterministically for the simplicity of this example). We will compare this data with the predictions from the service and generate rewards (0 or 1) based on the match and send it back to the service for training the model, to learn each person's preferences.
+# In this example, we will use Azure Personalizer Service to predict
+# what Coffee a person (Alice, Bob, Cathy and Dave) prefers using the
+# weather condition and time of day. File "example.json" contains
+# their preferred choices of coffee (set deterministically for the
+# simplicity of this example). We will compare this data with the
+# predictions from the service and generate rewards (0 or 1) based on
+# the match and send it back to the service for training the model,
+# to learn each person's preferences.
 # 
-# Note that a model is exported every 5 minutes (current default) if you are using the Cognitive Services instance of the Personalizer service, so you need to wait at least until that time has expired then to actually observe some learning in the rewards returned. Exploration is set at 20%. You can experiment with the model training defaults in the Settings blade for the Personalizer resource in the [Azure Portal](https://ms.portal.azure.com).
+# Note that a model is exported every 5 minutes (current default) if
+# you are using the Cognitive Services instance of the Personalizer
+# service, so you need to wait at least until that time has expired
+# then to actually observe some learning in the rewards
+# returned. Exploration is set at 20%. You can experiment with the
+# model training defaults in the Settings blade for the Personalizer
+# resource in the [Azure Portal](https://ms.portal.azure.com).
 # 
-# This implementation calls the [Personalizer service RESTful API](https://westus2.dev.cognitive.microsoft.com/docs/services/personalizer-api/operations/Rank); a set of http requests that the Personalizer exposes. The model iterates over events, performing _on-line learning._ The sequence of operation is
+# This implementation calls the [Personalizer service RESTful
+# API](https://westus2.dev.cognitive.microsoft.com/docs/services/personalizer-api/operations/Rank);
+# a set of http requests that the Personalizer exposes. The model iterates over events,
+# performing _on-line learning._ The sequence of operation is
 # 
-# - Observe the features (simulated in this demo) of the current event: The weather and time of day for this person's coffee choice.
-# - Place a _rank request_ to the Personalizer Service, using the model to predict the person's preferred choice from the set of specified _actions_.
-# - Compare the person's true choice with the predicted, and compute a model _reward_: 1 if they agree, 0 otherwise.
+# - Observe the features (simulated in this demo) of the current event:
+# The weather and time of day for this person's coffee choice.
+#
+# - Place a _rank request_ to the Personalizer Service, using the model to predict
+#   the person's preferred choice from the set of specified _actions_.
+#
+# - Compare the person's true choice with the predicted, and compute a model _reward_:
+#   1 if they agree,
+#   0 otherwise.
+
 # - Send the _reward_ back to the Service, to train the model on persons' preferences.
 # 
-# We record the sequence of rewards.  After running numerous events we should see the prediction accuracy of the model improve. 
+# We record the sequence of rewards.  After running numerous events we should see the
+# prediction accuracy of the model improve. 
 # 
 
 import datetime
-import os
+import os, sys
 import json
 # This will fail on the first import.  Just run it again and the error will disappear
 import matplotlib.pyplot as plt
@@ -27,25 +51,24 @@ import random
 import requests
 import time
 import uuid
-from pandas import DataFrame
+import numpy as np
+import pandas as pd
 from scipy import stats
+import secrets
 
-### config constants 
+### config constants ##################################################################
 VERBOSE = False
 out_dir    = os.getcwd() + '/'        ## Default for -o option
 
 # Replace 'personalization_base_url' and 'subscription_key' with your valid endpoint values.
-endpoint = "https://westus2.api.cognitive.microsoft.com/"
-personalization_base_url = endpoint # "http://localhost:5000"
-subscription_key = "3a1ab38574454951a75eb7c9abfdd924" 
-
-
+personalization_base_url = None # "http://localhost:5000"
+subscription_key = None
 
 
 # Assemble the parts of the RESTFUL api calls. 
-personalization_rank_url = personalization_base_url + "/personalizer/v1.0/rank"
-personalization_reward_url = personalization_base_url + "/personalizer/v1.0/events/" #add "{eventId}/reward"
-headers = {'Ocp-Apim-Subscription-Key' : subscription_key, 'Content-Type': 'application/json'}
+personalization_rank_url = secrets.personalization_base_url + "/personalizer/v1.0/rank"
+personalization_reward_url = secrets.personalization_base_url + "/personalizer/v1.0/events/" #add "{eventId}/reward"
+headers = {'Ocp-Apim-Subscription-Key' : secrets.subscription_key, 'Content-Type': 'application/json'}
 
 examplepath = "example.json"
 requestpath = "rankrequest.json"
@@ -117,7 +140,7 @@ def summary_context(c_vector):
     first_ltr = [str(k[0]) for k in c_vector]
     return ''.join(first_ltr)
 
-
+##########################################################################################
 # Reset the run data
 recommendations = 0
 reward = 0
@@ -131,11 +154,26 @@ namesopt = ['Alice', 'Bob', 'Cathy', 'Dave']
 weatheropt = ['Sunny', 'Rainy', 'Snowy']
 timeofdayopt = ['Morning', 'Afternoon', 'Evening']  # Or TRY a smaller state space. 
 
+# Create the Q matrix- of name / weather / TOD / actions
+# Simply index into this with
+# Q['Alice', 'Rainy', 'Evening', 'Latte']
+actions = [z["id"] for z in actionfeaturesobj]
+index_list = (namesopt, weatheropt, timeofdayopt, actions)
+Qindex = pd.MultiIndex.from_product(index_list, names=('names', 'weather', 'timeofday', 'actions'))
+zeros = np.zeros(np.product([len(z) for z in index_list]), dtype=np.int)
+Q = pd.Series(zeros, index=Qindex)
+
+# P(s)  policy object
+index_list = (namesopt, weatheropt, timeofdayopt)
+Pindex = pd.MultiIndex.from_product(index_list, names=('names', 'weather', 'timeofday'))
+# Create three columns: Best policy, votes for best, total votes
+zeros = np.zeros((np.product([len(z) for z in index_list]), 3), dtype=np.int)
+P = pd.DataFrame(zeros, index=Pindex, columns =("policy", 'total_visits', 'votes'))
 
 # The simulation loop. Running this could take a while :).  At first the HTTP service may be "cold"
 # and return "500" errors.  Just try again and it should work. 
 from time import clock
-num_requests =  30 # 10000
+num_requests =  4000 # 10000
 start_t = clock()
 last_count = 0
 for i in range(num_requests):
@@ -154,14 +192,16 @@ for i in range(num_requests):
                              params = None,
                              json = rankjsonobj)
     if response.status_code //  100 != 2:       # Must be in the 200s
-        print(i, "\tBad context response: ", response.status_code)
+        print(i, "\tBad context response: ", response.status_code, file=sys.stderr)
         
     try:
         #compare personalization service recommendation with the simulated data to generate a reward value
         prediction = json.dumps(response.json()["rewardActionId"]).replace('"','')  # Extract the prediction from the response
         reward = get_reward_from_simulated_data(name, weather, timeofday, prediction)
+        # Q(s,a) := r(s,a) + Q(s,a)
+        Q[name, weather, timeofday, prediction] += reward
     except:
-        print(f"Response failed: {response.json()}")
+        print(f"Response failed: {response.json()}", file=sys.stderr)
         break
         
     #send the reward to the service 
@@ -170,16 +210,16 @@ for i in range(num_requests):
                              params= None,
                              json = { "value" : reward })
     if response.status_code //  100 != 2:
-        print(i, "\tBad reward response: ", response.status_code)
+        print(i, "\tBad reward response: ", response.status_code, file=sys.stderr)
     #COmpute the sum of rewards for every 10 cycles 
     recommendations = recommendations + reward
     
     iplus = i + 1
     #wait (>1 min) between sending more events to observe learning in the next batch
-    if(iplus % 500 == 0):
+    if(iplus % 100 == 0):
         print(f"Avg {sum(rewards[last_count:-1])/(count[-1]- count[last_count])} at {int(clock() - start_t)} secs.")
         last_count = len(count) -1
-        time.sleep(20) 
+        time.sleep(60) 
              
     # Note event progress - the features and reward for every 10th event.
     if(iplus % 10 == 0): 
@@ -188,27 +228,40 @@ for i in range(num_requests):
         count.append(i)
         recommendations = 0
 
-print("\nTotal of {}  rewards ".format(10* len(rewards)))
+print("\nTotal of {}  rewards ".format(10* len(rewards)), file=sys.stderr)
 
+avg_reward = sum(rewards)/count[-1]
+print("Avg reward: ", avg_reward, file=sys.stderr)
 
-print("Avg reward: ",sum(rewards)/count[-1])
+# Extract the policy P(s) from the Q function
+# Iterate over all state combinations
+for nm in namesopt:
+    for wr in weatheropt:
+        for tod in timeofdayopt:
+            q_row = pd.Series(Q[nm, wr, tod])
+            P.loc[(nm, wr, tod), 'votes'] = max(q_row)
+            P.loc[(nm, wr, tod), 'total_visits'] = sum(q_row)
+            P.loc[(nm, wr, tod), 'policy'] = list(q_row).index(max(q_row))
 
+csv_fn = assemble_output_file_name(out_dir, 'policy', suffix='.csv')
+P.to_csv(csv_fn)
+
+# #### The learning rate
 lm = stats.linregress(count, rewards)
 y = [lm.slope * c + lm.intercept for c in count]
-print("Percent change per event:{: .4f}%".format(100 * lm.slope))
-
+print("Percent change per event:{: .4f}%".format(100 * lm.slope), file=sys.stderr)
 
 csv_fn = assemble_output_file_name(out_dir, 'pers_data', suffix='.csv')
-DataFrame(index=count, data=rewards, columns = ["rewards"]).to_csv(csv_fn)
-# #### The learning rate
-# 
-# A postive rate of change implies learning improves recommendations over time. We see this by plotting the total number of correct recommendations for every batch of 10 events.
+pd.DataFrame(index=count, data=rewards, columns = ["rewards"]).to_csv(csv_fn)
 
-
+# A postive rate of change implies learning improves recommendations over time. 
+# We see this by plotting the total number of correct recommendations for every batch of 10 events.
 plt_fn = assemble_output_file_name(out_dir, 'pers_plot', suffix='.png')
 plt.plot(count, rewards)
 plt.plot(count, y, '-')
 plt.xlabel("Batch of 10 rank events")
 plt.ylabel("Correct recommendations per batch")
-plt.title("Change in success rate over events.")
+plt.title("Change in success rate over events. Avg Reward: {}".format(avg_reward))
 plt.savefig(plt_fn)
+
+print(sys.argv[0]," Done at ", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), file=sys.stderr)
