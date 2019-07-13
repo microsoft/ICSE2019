@@ -216,7 +216,7 @@ for i in range(num_requests):
     
     iplus = i + 1
     #wait (>1 min) between sending more events to observe learning in the next batch
-    if(iplus % 100 == 0):
+    if(iplus % 500 == 0):
         print(f"Avg {sum(rewards[last_count:-1])/(count[-1]- count[last_count])} at {int(clock() - start_t)} secs.")
         last_count = len(count) -1
         time.sleep(60) 

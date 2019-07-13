@@ -28,6 +28,7 @@ from bokeh.plotting import figure, show
 from bokeh.colors.groups import blue
 from bokeh.models import Label
 from bokeh.layouts import column
+from scipy import stats
 
 
 ### config constants 
@@ -68,7 +69,22 @@ def read_one(fn, group_index, the_df):
 
 
 ########################################################################
+def slope_segment(cnt, rwd):
+    lm = stats.linregress(cnt, rwd)
+    x_beg = min(cnt) 
+    y_beg = lm.intercept + lm.slope * x_beg
+    x_end = max(cnt) 
+    y_end = lm.intercept + lm.slope * x_end
+    return ([x_beg, x_end], [y_beg, y_end], lm.slope)
+    
+########################################################################
 if __name__ == '__main__':
+    # Is there a cmd line arg for files to include?
+    if len(sys.argv) > 1:
+        data_list = eval(sys.argv[1])
+        if type(data_list) is not list:
+            print("arg {} is not a list.".format(sys.argv[1]), file=sys.stderr)
+            sys.exit(-1)
     # Just check that the file loads correctly
     reward_df = None
     index_offset = 0
@@ -76,23 +92,24 @@ if __name__ == '__main__':
         reward_df = read_one(a_file, k, reward_df)
     # print('Done!', '\n', reward_df.describe())
     if PLOT:
-        p = figure(plot_width = 1000, plot_height = 320, 
+        p = figure(plot_width = 1000, plot_height = 380, 
         title = 'Learning curve',
         x_axis_label = 'events', y_axis_label = 'reward')
-        grp_cnt = max(reward_df['group'])
+        grp_cnt = max(reward_df['group']) +1
         for grp in range(grp_cnt):
             segment = reward_df.loc[reward_df['group'] == grp]
             nrows = segment.shape[0]
             avg_reward = np.mean(segment['reward'].values)
-            p.circle(segment['count'], segment['reward'].values + np.random.random((nrows))-0.5, size=2, alpha= 0.8, color = blue[grp % 15])
-            p.line([min(segment['count'].values), max(segment['count'].values)], [avg_reward, avg_reward], color='black')
+            p.circle( segment['count'], segment['reward'].values + np.random.random((nrows))-0.5, size=2, alpha= 0.8, color = blue[grp % 15])
+            slope = slope_segment(segment['count'].values, segment['reward'].values)
+            p.line(slope[0], slope[1], color='black')
             annote = Label(x = min(segment['count'].values), y =8, 
-                text= '{:.2f}'.format(avg_reward), 
+                text= '{:.2f} : {:.3f}'.format(avg_reward, 100*slope[2]),
                 background_fill_color='WhiteSmoke', 
                 text_font_size="8pt")
             p.add_layout(annote)
+            print('grp', grp, '\n', segment.describe())
         show(p)
-        print(segment.describe())
         print('Done!')
     else:
         reward_df.to_csv('reward.csv', index=False)
