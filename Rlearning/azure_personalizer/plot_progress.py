@@ -5,7 +5,7 @@
 Append sequential runs from the Personalizer RWRL demo to plot. 
 
 Usage:
-$ python ./plot_progress.py
+$ python ./plot_progress.py  [list of pers_data*.csv files]
 """ 
 
 
@@ -22,6 +22,7 @@ import time
 
 import numpy as np
 import pandas as pd
+from scipy import stats
 
 from bokeh.plotting import figure, show
 #from bokeh.models.markers import Circle
@@ -55,7 +56,7 @@ data_list = ("pers_data2019-6-26-5-28-25.csv",
 def read_one(fn, group_index, the_df):
     if VERBOSE:
             print("Reading", fn, file=sys.stderr)
-    next_df = pd.read_csv(os.path.join(plot_dir, fn), 
+    next_df = pd.read_csv(os.path.join(os.getcwd(), fn), 
             names = ('count', 'reward'), 
             skiprows =1,
             index_col= False)
@@ -79,7 +80,8 @@ def slope_segment(cnt, rwd):
     
 ########################################################################
 if __name__ == '__main__':
-    # Is there a cmd line arg for files to include?
+
+    # Is there a cmd line arg for files to include? 
     if len(sys.argv) > 1:
         data_list = eval(sys.argv[1])
         if type(data_list) is not list:
